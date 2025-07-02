@@ -1,5 +1,6 @@
-const fetch = require('node-fetch');
+const axios = require('axios');
 const fs = require('fs');
+const FormData = require('form-data');
 const logger = require('./utils/logger');
 
 async function processReceiptWithUploadInterface(imagePath, userId) {
@@ -16,47 +17,41 @@ async function processReceiptWithUploadInterface(imagePath, userId) {
         }
 
         const imageBuffer = fs.readFileSync(imagePath);
-        const base64Image = imageBuffer.toString('base64');
         
-        // Prepare the JSON payload
-        const payload = {
-            image: base64Image,
-            format: 'base64',
-            userId: userId,
-            source: 'whatsapp',
-            timestamp: new Date().toISOString()
-        };
+        // Create form data
+        const formData = new FormData();
+        formData.append('receipt_image', imageBuffer, {
+            filename: 'receipt.jpg',
+            contentType: 'image/jpeg'
+        });
+        formData.append('user_id', userId);
 
+        const endpoint = 'http://192.168.68.94:8522/process-receipt';
+        
         logger.info('Sending request to Upload Interface', {
-            payloadSize: JSON.stringify(payload).length,
-            endpoint: 'http://192.168.68.94:8522/process-receipt'
+            endpoint,
+            payloadSize: imageBuffer.length
         });
 
-        // Send to upload interface
-        const response = await fetch('http://192.168.68.94:8522/process-receipt', {
-            method: 'POST',
+        const response = await axios.post(endpoint, formData, {
             headers: {
-                'Content-Type': 'application/json'
+                ...formData.getHeaders(),
+                'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`
             },
-            body: JSON.stringify(payload)
+            timeout: 30000,
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity
         });
 
-        if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`Upload Interface responded with ${response.status}: ${errorText}`);
-        }
-
-        const result = await response.json();
-        
-        logger.info('Upload Interface processing completed', {
-            status: result.status,
-            receiptId: result.receiptId || 'N/A'
+        logger.info('Upload Interface response received', {
+            status: response.status,
+            dataSize: JSON.stringify(response.data).length
         });
 
         return {
             success: true,
-            data: result,
-            source: 'upload-interface'
+            data: response.data,
+            processed_at: new Date().toISOString()
         };
 
     } catch (error) {
@@ -69,11 +64,9 @@ async function processReceiptWithUploadInterface(imagePath, userId) {
         return {
             success: false,
             error: error.message,
-            source: 'upload-interface'
+            processed_at: new Date().toISOString()
         };
     }
 }
 
-module.exports = {
-    processReceiptWithUploadInterface
-};
+module.exports = { processReceiptWithUploadInterface };
