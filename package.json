@@ -1,12 +1,28 @@
 {
   "name": "boss-mcp-whatsapp-v7",
-  "version": "7.0.0",
-  "description": "Boss Network WhatsApp MCP Server V7",
+  "version": "7.0.0", 
+  "description": "Boss Network WhatsApp MCP Server V7 - Enterprise Edition",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "dev": "nodemon src/index.js",
+    "lint": "eslint src/ --fix",
+    "lint:check": "eslint src/",
+    "format": "prettier --write src/**/*.js",
+    "format:check": "prettier --check src/**/*.js",
+    "test": "jest",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage",
+    "security": "npm audit && eslint src/ --ext .js --no-eslintrc --config .eslintrc.json",
+    "docs": "jsdoc src/ -d docs/",
+    "quality": "npm run lint:check && npm run format:check && npm run test:coverage && npm run security",
+    "precommit": "npm run quality",
+    "docker:build": "docker build -t boodschapp-whatsapp-mcp .",
+    "docker:run": "docker run -d --name whatsapp-mcp -p 19212:3000 boodschapp-whatsapp-mcp"
   },
+  "keywords": ["whatsapp", "mcp", "bot", "enterprise", "boss"],
+  "author": "BOSS Enterprise Workflow",
+  "license": "MIT",
   "dependencies": {
     "axios": "^1.9.0",
     "cors": "^2.8.5",
@@ -20,5 +36,21 @@
     "form-data": "^4.0.0",
     "node-fetch": "^3.3.0",
     "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.30.1",
+    "eslint": "^8.57.1",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-security": "^3.0.1",
+    "jest": "^30.0.3",
+    "jsdoc": "^4.0.4",
+    "nodemon": "^3.1.10",
+    "nyc": "^17.1.0",
+    "prettier": "^3.6.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
   }
 }
