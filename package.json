@@ -1,0 +1,24 @@
+{
+  "name": "boss-mcp-whatsapp-v7",
+  "version": "7.0.0",
+  "description": "Boss Network WhatsApp MCP Server V7",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.9.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.17.3",
+    "mongoose": "^6.2.9",
+    "pg": "^8.11.3",
+    "qrcode-terminal": "^0.12.0",
+    "whatsapp-web.js": "^1.18.4",
+    "winston": "^3.7.2",
+    "form-data": "^4.0.0",
+    "node-fetch": "^3.3.0",
+    "uuid": "^9.0.0"
+  }
+}
