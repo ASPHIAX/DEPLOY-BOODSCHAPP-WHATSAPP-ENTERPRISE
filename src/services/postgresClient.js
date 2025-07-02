@@ -4,12 +4,12 @@ const logger = require('../utils/logger');
 class PostgreSQLClient {
   constructor() {
     this.pool = new Pool({
-      host: '172.19.0.3',
-      port: 5432,
+      host: '192.168.68.94',
+      port: 19201,
       database: 'boodschapp_production',
       user: 'xdai-ai',
       password: 'postgres',
-      connectionTimeoutMillis: 3000,
+      connectionTimeoutMillis: 5000,
     });
   }
 
@@ -18,7 +18,7 @@ class PostgreSQLClient {
       const client = await this.pool.connect();
       await client.query('SELECT 1');
       client.release();
-      logger.info('Connected to PostgreSQL: 172.19.0.3:5432/boodschapp_production');
+      logger.info('Connected to PostgreSQL: 192.168.68.94:19201/boodschapp_production');
       return true;
     } catch (error) {
       logger.error(`PostgreSQL connection failed: ${error.message}`);

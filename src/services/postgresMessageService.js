@@ -5,12 +5,12 @@ class SimplePostgreSQLMessageService {
   
   async saveMessage(messageData) {
     const pool = new Pool({
-      host: '172.19.0.3',
-      port: 5432,
+      host: '192.168.68.94',
+      port: 19201,
       database: 'boodschapp_production',
       user: 'xdai-ai',
       password: 'postgres',
-      connectionTimeoutMillis: 3000,
+      connectionTimeoutMillis: 5000,
     });
 
     try {
