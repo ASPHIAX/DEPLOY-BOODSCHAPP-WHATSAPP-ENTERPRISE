@@ -18,25 +18,24 @@ async function processReceiptWithUploadInterface(imagePath, userId) {
 
         const imageBuffer = fs.readFileSync(imagePath);
         
-        // Create form data
+        // Create form data with 'image' field name
         const formData = new FormData();
-        formData.append('receipt_image', imageBuffer, {
+        formData.append('image', imageBuffer, {
             filename: 'receipt.jpg',
             contentType: 'image/jpeg'
         });
-        formData.append('user_id', userId);
 
         const endpoint = 'http://192.168.68.94:8522/process-receipt';
         
         logger.info('Sending request to Upload Interface', {
             endpoint,
-            payloadSize: imageBuffer.length
+            payloadSize: imageBuffer.length,
+            fieldName: 'image'
         });
 
         const response = await axios.post(endpoint, formData, {
             headers: {
-                ...formData.getHeaders(),
-                'Content-Type': `multipart/form-data; boundary=${formData.getBoundary()}`
+                ...formData.getHeaders()
             },
             timeout: 30000,
             maxContentLength: Infinity,
@@ -58,7 +57,11 @@ async function processReceiptWithUploadInterface(imagePath, userId) {
         logger.error('Error processing receipt with Upload Interface', {
             error: error.message,
             imagePath,
-            userId
+            userId,
+            response: error.response ? {
+                status: error.response.status,
+                data: error.response.data
+            } : null
         });
         
         return {
