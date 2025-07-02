@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { TEMPLATES, templateEngine } = require('./boodschapp-messages');
 const logger = require('./utils/logger');
 const postgresClient = require('./services/postgresClient');
@@ -77,7 +78,16 @@ async function processInboundMessage(message) {
             require('fs').writeFileSync(imagePath, media.data, 'base64');
             
             const ocrResult = await processReceiptWithUploadInterface(imagePath, message.from);
+            // DEBUG: Log OCR result structure
+            console.log("🔍 OCR Result Debug:", {
+              success: ocrResult?.success,
+              hasData: !!ocrResult?.data,
+              errorMessage: ocrResult?.error
+            });
+            fs.writeFileSync("/tmp/ocr_debug.json", JSON.stringify({timestamp: new Date().toISOString(), ocrResult}, null, 2));
+            console.log("🚨 OCR SUCCESS CHECK - ocrResult.success:", ocrResult.success);
             if (ocrResult.success) {
+              console.log("✅ ENTERING SUCCESS BLOCK - calling formatReceiptResponse");
               const response = formatReceiptResponse(ocrResult);
               await message.reply(response);
               

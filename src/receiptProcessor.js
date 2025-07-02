@@ -90,6 +90,7 @@ function parseDutchReceipt(text) {
   }
   
   // Enhanced product patterns
+  // eslint-disable-next-line no-unused-vars
   const productPatterns = [
     // Standard receipt format: product price
     /^(.+?)\s+€?\s*(\d+)[,\.](\d{2})\s*$/,
@@ -260,11 +261,31 @@ async function processReceiptWithMCP(imagePath, userId) {
   }
 }
 
-function formatReceiptResponse(data) {
+function formatReceiptResponse(ocrResult) {
+  console.log('🔍 formatReceiptResponse called with data structure');
+  
+  console.log('🔍 FULL OCR RESULT:', JSON.stringify(ocrResult, null, 2));
   const { templateEngine } = require('./boodschapp-messages');
   
-  // Use enterprise template engine instead of manual string building
-  return templateEngine.formatReceiptResponse(data);
+  // Handle data structure mapping
+  if (!ocrResult || !ocrResult.data) {
+    console.log('❌ Invalid OCR result structure');
+    return 'Sorry, er ging iets mis met de bonverwerking.';
+  }
+  
+  const ocrData = ocrResult.data;
+  
+  // Map to template format
+  const templateData = {
+    total: ocrData.total_amount || 0,
+    store: (ocrData.store_info && ocrData.store_info.name) || 'Onbekende winkel',
+    date: (ocrData.store_info && ocrData.store_info.date) || new Date().toLocaleDateString('nl-NL'),
+    savings: 0
+  };
+  
+  console.log('✅ Mapped template data:', JSON.stringify(templateData));
+  
+  return templateEngine.formatReceiptResponse(templateData);
 }
 
 module.exports = { processReceiptWithMCP, formatReceiptResponse };

@@ -45,7 +45,8 @@ class SimplePostgreSQLMessageService {
         }),
         JSON.stringify({
           original_timestamp: messageData.timestamp,
-          processed_at: new Date().toISOString()
+          processed_at: new Date().toISOString(),
+          receipt_data: messageData.receiptData || null,
         }),
         new Date(messageData.timestamp || Date.now())
       ];

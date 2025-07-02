@@ -1,6 +1,5 @@
 const axios = require('axios');
 const fs = require('fs');
-const FormData = require('form-data');
 const logger = require('./utils/logger');
 
 async function processReceiptWithUploadInterface(imagePath, userId) {
@@ -17,25 +16,27 @@ async function processReceiptWithUploadInterface(imagePath, userId) {
         }
 
         const imageBuffer = fs.readFileSync(imagePath);
+        const imageBase64 = imageBuffer.toString('base64');
         
-        // Create form data with 'image' field name
-        const formData = new FormData();
-        formData.append('image', imageBuffer, {
-            filename: 'receipt.jpg',
-            contentType: 'image/jpeg'
-        });
+        // Create JSON payload for /process-receipt endpoint
+        const payload = {
+            image_data: imageBase64,
+            original_filename: 'receipt.jpg',
+            compressed_size: imageBuffer.length
+        };
 
         const endpoint = 'http://192.168.68.94:8522/process-receipt';
         
         logger.info('Sending request to Upload Interface', {
             endpoint,
             payloadSize: imageBuffer.length,
-            fieldName: 'image'
+            base64Size: imageBase64.length,
+            apiContract: 'process-receipt JSON'
         });
 
-        const response = await axios.post(endpoint, formData, {
+        const response = await axios.post(endpoint, payload, {
             headers: {
-                ...formData.getHeaders()
+                'Content-Type': 'application/json'
             },
             timeout: 30000,
             maxContentLength: Infinity,
